@@ -115,6 +115,7 @@
       cursor: pointer;
       box-shadow: 0 7px 16px rgba(189, 100, 130, 0.2);
       transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .btn:hover:not(:disabled) {
@@ -122,10 +123,22 @@
       box-shadow: 0 10px 20px rgba(189, 100, 130, 0.27);
     }
 
-    .btn:focus-visible,
+    .btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn:focus {
+      outline: none;
+    }
+
+    .btn:focus-visible {
+      box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(189, 105, 133, 0.72);
+    }
+
     .gift-box:focus-visible {
-      outline: 3px solid #9d4867;
-      outline-offset: 4px;
+      outline: 3px solid #bd6985;
+      outline-offset: 5px;
+      border-radius: 16px;
     }
 
     .btn.secondary {
