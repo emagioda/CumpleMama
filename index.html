@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feliz cumpleaños mamá</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(180deg, #fff6f8 0%, #ffeef3 100%);
+      color: #5a3d46;
+      overflow-x: hidden;
+    }
+
+    .screen {
+      min-height: 100vh;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 28px 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      text-align: center;
+      animation: fadeUp 0.7s ease;
+    }
+
+    h1, h2 {
+      margin-top: 0;
+    }
+
+    .emoji {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+
+    p {
+      line-height: 1.5;
+      font-size: 17px;
+    }
+
+    .btn {
+      margin-top: 18px;
+      border: none;
+      background: #e985a7;
+      color: white;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+    }
+
+    .btn.secondary {
+      background: #c98ca0;
+    }
+
+    .message-box {
+      margin-top: 18px;
+      background: #fff7fa;
+      border-radius: 18px;
+      padding: 18px;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .message-author {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #a15a73;
+    }
+
+    .gift-box {
+      width: 130px;
+      height: 130px;
+      margin: 24px auto 10px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #f49cbc, #e985a7);
+      position: relative;
+      cursor: pointer;
+      animation: floaty 2s ease-in-out infinite;
+      box-shadow: 0 10px 25px rgba(233,133,167,0.35);
+    }
+
+    .gift-box::before {
+      content: "";
+      position: absolute;
+      width: 24px;
+      height: 130px;
+      background: #fff3f7;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+    }
+
+    .gift-box::after {
+      content: "";
+      position: absolute;
+      width: 130px;
+      height: 24px;
+      background: #fff3f7;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .small {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .amount {
+      font-size: 42px;
+      font-weight: 800;
+      color: #d3547e;
+      margin: 16px 0;
+    }
+
+    .signatures {
+      margin-top: 18px;
+      font-style: italic;
+      color: #8f6171;
+    }
+
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -30px;
+      font-size: 20px;
+      animation: rise 7s linear forwards;
+      opacity: 0.8;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes floaty {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes rise {
+      to {
+        transform: translateY(-110vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts" id="hearts"></div>
+
+  <!-- Pantalla 1 -->
+  <section class="screen active" id="screen1">
+    <div class="card">
+      <div class="emoji">🎂💖</div>
+      <h1>Feliz cumpleaños, mamá</h1>
+      <p>
+        Hoy te preparamos una sorpresa con mucho amor.<br>
+        No es cualquier regalo... es algo hecho por tus hijos para vos.
+      </p>
+      <button class="btn" onclick="goTo('screen2')">Empezar sorpresa</button>
+    </div>
+  </section>
+
+  <!-- Pantalla 2 -->
+  <section class="screen" id="screen2">
+    <div class="card">
+      <div class="emoji">💌</div>
+      <h2>Mensajes para vos</h2>
+
+      <div class="message-box">
+        <p id="messageText"></p>
+      </div>
+      <div class="message-author" id="messageAuthor"></div>
+
+      <button class="btn secondary" onclick="prevMessage()">Anterior</button>
+      <button class="btn" onclick="nextMessage()">Siguiente</button>
+
+      <div style="margin-top: 10px;">
+        <button class="btn" onclick="goTo('screen3')">Seguir</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pantalla 3 -->
+  <section class="screen" id="screen3">
+    <div class="card">
+      <div class="emoji">🎁</div>
+      <h2>Tu regalo está acá</h2>
+      <p>Para descubrirlo, tocá la caja regalo ✨</p>
+
+      <div class="gift-box" onclick="openGift()"></div>
+      <p class="small">Tocala para abrirla</p>
+    </div>
+  </section>
+
+  <!-- Pantalla 4 -->
+  <section class="screen" id="screen4">
+    <div class="card">
+      <div class="emoji">💸🎉</div>
+      <h2>¡Sorpresa!</h2>
+      <p>Entre todos queremos regalarte esto para que lo uses en lo que más quieras:</p>
+
+      <div class="amount">$120.000</div>
+
+      <p>
+        Porque te merecés darte gustos, descansar, disfrutar y hacerte un mimo.
+      </p>
+
+      <div class="signatures">
+        Con amor, de tus hijos:<br>
+        Juan, Lucía y Martín ❤️
+      </div>
+
+      <button class="btn" onclick="goTo('screen5')">Ver mensaje final</button>
+    </div>
+  </section>
+
+  <!-- Pantalla 5 -->
+  <section class="screen" id="screen5">
+    <div class="card">
+      <div class="emoji">❤️</div>
+      <h2>Te amamos mucho</h2>
+      <p>
+        Gracias por todo lo que hacés por nosotros.<br>
+        Esperamos que este regalo te saque una sonrisa enorme.
+      </p>
+      <p><strong>¡Feliz cumpleaños, mamá!</strong></p>
+      <button class="btn" onclick="restart()">Ver de nuevo</button>
+    </div>
+  </section>
+
+  <script>
+    const messages = [
+      {
+        text: "Gracias por estar siempre, por bancarnos en todo y por dar tanto amor. Te merecés lo mejor del mundo.",
+        author: "Juan"
+      },
+      {
+        text: "Sos una mamá increíble y una persona hermosa. Ojalá este día te haga sentir todo lo importante que sos para nosotros.",
+        author: "Lucía"
+      },
+      {
+        text: "Te queremos muchísimo. Este regalo es un pequeño mimo para devolverte aunque sea una parte de todo lo que nos das.",
+        author: "Martín"
+      }
+    ];
+
+    let currentMessage = 0;
+
+    function updateMessage() {
+      document.getElementById("messageText").textContent = messages[currentMessage].text;
+      document.getElementById("messageAuthor").textContent = "— " + messages[currentMessage].author;
+    }
+
+    function nextMessage() {
+      currentMessage = (currentMessage + 1) % messages.length;
+      updateMessage();
+    }
+
+    function prevMessage() {
+      currentMessage = (currentMessage - 1 + messages.length) % messages.length;
+      updateMessage();
+    }
+
+    function goTo(id) {
+      document.querySelectorAll(".screen").forEach(screen => screen.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function openGift() {
+      launchConfetti();
+      goTo("screen4");
+    }
+
+    function restart() {
+      currentMessage = 0;
+      updateMessage();
+      goTo("screen1");
+    }
+
+    function launchConfetti() {
+      confetti({
+        particleCount: 160,
+        spread: 90,
+        origin: { y: 0.6 }
+      });
+    }
+
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerHTML = Math.random() > 0.5 ? "💖" : "💕";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = (16 + Math.random() * 18) + "px";
+      heart.style.animationDuration = (5 + Math.random() * 4) + "s";
+      document.getElementById("hearts").appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 8000);
+    }
+
+    setInterval(createHeart, 900);
+    updateMessage();
+  </script>
+</body>
+</html>
