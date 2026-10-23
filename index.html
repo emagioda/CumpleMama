@@ -6,24 +6,38 @@
   <title>Feliz cumpleaños mamá</title>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <style>
+    :root {
+      color-scheme: light;
+      --ink: #59434a;
+      --muted: #8a6e76;
+      --rose-dark: #a75472;
+    }
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(180deg, #fff6f8 0%, #ffeef3 100%);
-      color: #5a3d46;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", Arial, sans-serif;
+      background:
+        radial-gradient(ellipse at 8% 12%, rgba(255, 255, 255, 0.9), transparent 32%),
+        radial-gradient(ellipse at 92% 88%, rgba(246, 211, 222, 0.72), transparent 34%),
+        linear-gradient(145deg, #fffaf5 0%, #fff1f4 52%, #fce8ed 100%);
+      color: var(--ink);
       overflow-x: hidden;
     }
 
     .screen {
       min-height: 100vh;
+      min-height: 100svh;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: clamp(20px, 5vw, 48px);
+      position: relative;
+      isolation: isolate;
     }
 
     .screen.active {
@@ -32,116 +46,303 @@
 
     .card {
       width: 100%;
-      max-width: 500px;
-      background: rgba(255,255,255,0.9);
-      border-radius: 24px;
-      padding: 28px 22px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+      max-width: 520px;
+      position: relative;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 30px;
+      padding: clamp(30px, 7vw, 46px) clamp(22px, 6vw, 42px);
+      box-shadow: 0 24px 70px rgba(133, 76, 96, 0.13), 0 3px 12px rgba(133, 76, 96, 0.06);
       text-align: center;
       animation: fadeUp 0.7s ease;
+      z-index: 1;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 72px;
+      height: 5px;
+      transform: translateX(-50%);
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(90deg, #e8a2b7, #c96f8d);
     }
 
     h1, h2 {
-      margin-top: 0;
+      margin: 0 0 14px;
+      color: #63444f;
+      font-family: Georgia, "Times New Roman", serif;
+      font-weight: 600;
+      letter-spacing: -0.035em;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 7vw, 2.7rem);
+    }
+
+    h2 {
+      font-size: clamp(1.75rem, 6vw, 2.2rem);
     }
 
     .emoji {
-      font-size: 42px;
-      margin-bottom: 12px;
+      font-size: 46px;
+      margin-bottom: 18px;
+      filter: drop-shadow(0 5px 8px rgba(190, 105, 134, 0.16));
     }
 
     p {
-      line-height: 1.5;
-      font-size: 17px;
+      max-width: 40ch;
+      margin: 12px auto;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
     }
 
     .btn {
+      min-height: 48px;
       margin-top: 18px;
       border: none;
-      background: #e985a7;
+      background: linear-gradient(135deg, #d8849f, #bd6482);
       color: white;
-      padding: 14px 22px;
+      padding: 13px 23px;
       border-radius: 999px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
+      box-shadow: 0 7px 16px rgba(189, 100, 130, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
 
-    .btn:hover {
-      transform: scale(1.03);
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(189, 100, 130, 0.27);
+    }
+
+    .btn:focus-visible,
+    .gift-box:focus-visible {
+      outline: 3px solid #9d4867;
+      outline-offset: 4px;
     }
 
     .btn.secondary {
-      background: #c98ca0;
+      background: #f5e8ec;
+      color: #865368;
+      box-shadow: none;
+    }
+
+    .btn.secondary:hover:not(:disabled) {
+      background: #eedbe2;
+      box-shadow: 0 6px 14px rgba(133, 76, 96, 0.1);
+    }
+
+    .message-navigation {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .message-navigation .btn {
+      min-width: 124px;
+      margin-top: 12px;
+    }
+
+    .continue-action {
+      margin-top: 14px;
+      padding-top: 5px;
     }
 
     .message-box {
-      margin-top: 18px;
-      background: #fff7fa;
-      border-radius: 18px;
-      padding: 18px;
-      min-height: 140px;
+      margin-top: 22px;
+      background: linear-gradient(145deg, #fff9f8, #fff1f5);
+      border: 1px solid #f6e4e9;
+      border-radius: 20px;
+      padding: 20px;
+      min-height: 150px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
+    .message-box.is-next {
+      animation: messageEnterNext 0.48s cubic-bezier(0.2, 0.75, 0.25, 1);
+    }
+
+    .message-box.is-prev {
+      animation: messageEnterPrev 0.48s cubic-bezier(0.2, 0.75, 0.25, 1);
+    }
+
+    .message-box p {
+      color: #705760;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      white-space: pre-line;
+    }
+
     .message-author {
-      margin-top: 12px;
+      margin-top: 15px;
       font-weight: bold;
-      color: #a15a73;
+      color: var(--rose-dark);
+    }
+
+    .message-author.is-next,
+    .message-author.is-prev {
+      animation: authorEnter 0.42s ease-out 0.08s both;
+    }
+
+    .message-progress {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      margin-top: 19px;
+      color: #997c85;
+      font-size: 13px;
+      letter-spacing: 0.03em;
+    }
+
+    .message-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .message-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #e8cbd4;
+      transition: width 0.25s ease, background 0.25s ease, transform 0.25s ease;
+    }
+
+    .message-dot.active {
+      width: 20px;
+      background: #bd6985;
+      transform: scaleY(1.08);
     }
 
     .gift-box {
-      width: 130px;
-      height: 130px;
-      margin: 24px auto 10px;
-      border-radius: 20px;
-      background: linear-gradient(180deg, #f49cbc, #e985a7);
+      display: block;
+      width: 174px;
+      height: 148px;
+      margin: 28px auto 8px;
+      padding: 0;
       position: relative;
       cursor: pointer;
-      animation: floaty 2s ease-in-out infinite;
-      box-shadow: 0 10px 25px rgba(233,133,167,0.35);
+      border: 0;
+      background: transparent;
+      filter: drop-shadow(0 12px 13px rgba(189, 100, 130, 0.23));
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .gift-box::before {
-      content: "";
+    .gift-base {
       position: absolute;
-      width: 24px;
-      height: 130px;
-      background: #fff3f7;
-      left: 50%;
-      top: 0;
-      transform: translateX(-50%);
+      width: 132px;
+      height: 91px;
+      left: 21px;
+      bottom: 0;
+      border-radius: 8px 8px 17px 17px;
+      background:
+        linear-gradient(90deg, transparent 42%, #fff1d9 42%, #fff1d9 58%, transparent 58%),
+        linear-gradient(145deg, #eda0b5, #d87594);
     }
 
-    .gift-box::after {
+    .gift-base::after {
       content: "";
       position: absolute;
-      width: 130px;
-      height: 24px;
-      background: #fff3f7;
+      top: 36px;
       left: 0;
-      top: 50%;
-      transform: translateY(-50%);
+      width: 100%;
+      height: 17px;
+      background: #fff1d9;
+    }
+
+    .gift-lid {
+      position: absolute;
+      z-index: 1;
+      width: 158px;
+      height: 31px;
+      left: 8px;
+      top: 43px;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 45%, #fff1d9 45%, #fff1d9 55%, transparent 55%),
+        linear-gradient(145deg, #f4b0c2, #dc829e);
+      box-shadow: inset 0 -4px 0 rgba(172, 79, 109, 0.12);
+      transition: transform 0.55s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .gift-bow {
+      position: absolute;
+      z-index: 2;
+      left: 76px;
+      top: 23px;
+      width: 22px;
+      height: 24px;
+      border: 6px solid #fff1d9;
+      border-radius: 80% 20% 70% 30%;
+      transform: rotate(38deg);
+      transition: transform 0.55s ease;
+    }
+
+    .gift-bow::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 24px;
+      left: 5px;
+      top: -7px;
+      border: 6px solid #fff1d9;
+      border-radius: 20% 80% 30% 70%;
+      transform: rotate(70deg);
+    }
+
+    .gift-box.opening {
+      animation: none;
+    }
+
+    .gift-box.opening .gift-lid {
+      transform: translate(21px, -40px) rotate(18deg);
+    }
+
+    .gift-box.opening .gift-bow {
+      transform: translate(20px, -40px) rotate(55deg);
+    }
+
+    .gift-box:disabled {
+      cursor: default;
     }
 
     .small {
       font-size: 14px;
-      opacity: 0.8;
+      color: #997c85;
     }
 
     .amount {
-      font-size: 42px;
-      font-weight: 800;
-      color: #d3547e;
-      margin: 16px 0;
+      display: inline-block;
+      position: relative;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.5rem, 11vw, 3.25rem);
+      font-weight: 700;
+      color: #bd5e7e;
+      margin: 18px 0;
+      padding: 5px 18px 9px;
+      background: #fff1f4;
+      border-radius: 18px;
+      box-shadow: 0 5px 16px rgba(189, 100, 130, 0.08);
     }
 
     .signatures {
-      margin-top: 18px;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid #f2e1e6;
+      font-family: Georgia, "Times New Roman", serif;
       font-style: italic;
+      line-height: 1.7;
       color: #8f6171;
     }
 
@@ -150,14 +351,15 @@
       inset: 0;
       pointer-events: none;
       overflow: hidden;
+      z-index: 0;
     }
 
     .heart {
       position: absolute;
       bottom: -30px;
       font-size: 20px;
-      animation: rise 7s linear forwards;
-      opacity: 0.8;
+      animation: rise 9s linear forwards;
+      opacity: 0.42;
     }
 
     @keyframes fadeUp {
@@ -171,15 +373,66 @@
       }
     }
 
-    @keyframes floaty {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
     @keyframes rise {
       to {
         transform: translateY(-110vh);
         opacity: 0;
+      }
+    }
+
+    @keyframes messageEnterNext {
+      from {
+        opacity: 0.35;
+        transform: translateX(22px) translateY(5px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes messageEnterPrev {
+      from {
+        opacity: 0.35;
+        transform: translateX(-22px) translateY(5px) scale(0.99);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) translateY(0) scale(1);
+      }
+    }
+
+    @keyframes authorEnter {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 380px) {
+      .message-navigation .btn {
+        min-width: 0;
+        flex: 1;
+        padding-inline: 12px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .hearts {
+        display: none;
       }
     }
   </style>
@@ -191,10 +444,10 @@
   <section class="screen active" id="screen1">
     <div class="card">
       <div class="emoji">🎂💖</div>
-      <h1>Feliz cumpleaños, mamá</h1>
+      <h1>Feliz cumple Ma!!</h1>
       <p>
-        Hoy te preparamos una sorpresa con mucho amor.<br>
-        No es cualquier regalo... es algo hecho por tus hijos para vos.
+        Hoy es un día para devolverte un poquito de todo el amor que nos das.<br>
+        Tenemos una sorpresa muy especial para vos.
       </p>
       <button class="btn" onclick="goTo('screen2')">Empezar sorpresa</button>
     </div>
@@ -210,11 +463,20 @@
         <p id="messageText"></p>
       </div>
       <div class="message-author" id="messageAuthor"></div>
+      <div class="message-progress" aria-label="Progreso de mensajes">
+        <span id="messageCount" aria-live="polite"></span>
+        <span class="message-dots" aria-hidden="true">
+          <span class="message-dot"></span>
+          <span class="message-dot"></span>
+          <span class="message-dot"></span>
+        </span>
+      </div>
 
-      <button class="btn secondary" onclick="prevMessage()">Anterior</button>
-      <button class="btn" onclick="nextMessage()">Siguiente</button>
-
-      <div style="margin-top: 10px;">
+      <div class="message-navigation">
+        <button class="btn secondary" onclick="prevMessage()">Anterior</button>
+        <button class="btn" onclick="nextMessage()">Siguiente</button>
+      </div>
+      <div class="continue-action">
         <button class="btn" onclick="goTo('screen3')">Seguir</button>
       </div>
     </div>
@@ -227,7 +489,11 @@
       <h2>Tu regalo está acá</h2>
       <p>Para descubrirlo, tocá la caja regalo ✨</p>
 
-      <div class="gift-box" onclick="openGift()"></div>
+      <button class="gift-box" id="giftBox" type="button" onclick="openGift()" aria-label="Abrir el regalo">
+        <span class="gift-lid" aria-hidden="true"></span>
+        <span class="gift-base" aria-hidden="true"></span>
+        <span class="gift-bow" aria-hidden="true"></span>
+      </button>
       <p class="small">Tocala para abrirla</p>
     </div>
   </section>
@@ -239,7 +505,7 @@
       <h2>¡Sorpresa!</h2>
       <p>Entre todos queremos regalarte esto para que lo uses en lo que más quieras:</p>
 
-      <div class="amount">$120.000</div>
+      <div class="amount">$100.000</div>
 
       <p>
         Porque te merecés darte gustos, descansar, disfrutar y hacerte un mimo.
@@ -247,7 +513,7 @@
 
       <div class="signatures">
         Con amor, de tus hijos:<br>
-        Juan, Lucía y Martín ❤️
+        Mari, Ema y Cande ❤️
       </div>
 
       <button class="btn" onclick="goTo('screen5')">Ver mensaje final</button>
@@ -263,7 +529,7 @@
         Gracias por todo lo que hacés por nosotros.<br>
         Esperamos que este regalo te saque una sonrisa enorme.
       </p>
-      <p><strong>¡Feliz cumpleaños, mamá!</strong></p>
+      <p><strong>¡Feliz cumpleaños Ma!</strong></p>
       <button class="btn" onclick="restart()">Ver de nuevo</button>
     </div>
   </section>
@@ -271,34 +537,48 @@
   <script>
     const messages = [
       {
-        text: "Gracias por estar siempre, por bancarnos en todo y por dar tanto amor. Te merecés lo mejor del mundo.",
-        author: "Juan"
+        text: "...",
+        author: "Mari"
       },
       {
-        text: "Sos una mamá increíble y una persona hermosa. Ojalá este día te haga sentir todo lo importante que sos para nosotros.",
-        author: "Lucía"
+        text: "Disfruta mucho de este día y sabes que siempre vamos a estar para vos como vos lo haces por todos nosotros.\nTe quiero mucho!!",
+        author: "Ema"
       },
       {
-        text: "Te queremos muchísimo. Este regalo es un pequeño mimo para devolverte aunque sea una parte de todo lo que nos das.",
-        author: "Martín"
+        text: "...",
+        author: "Cande"
       }
     ];
 
     let currentMessage = 0;
 
-    function updateMessage() {
+    function updateMessage(direction) {
       document.getElementById("messageText").textContent = messages[currentMessage].text;
-      document.getElementById("messageAuthor").textContent = "— " + messages[currentMessage].author;
+      document.getElementById("messageAuthor").textContent = messages[currentMessage].author;
+      document.getElementById("messageCount").textContent = `Mensaje ${currentMessage + 1} de ${messages.length}`;
+      document.querySelectorAll(".message-dot").forEach((dot, index) => {
+        dot.classList.toggle("active", index === currentMessage);
+      });
+
+      if (direction) {
+        const messageBox = document.querySelector(".message-box");
+        const messageAuthor = document.getElementById("messageAuthor");
+        [messageBox, messageAuthor].forEach(element => {
+          element.classList.remove("is-next", "is-prev");
+          void element.offsetWidth;
+          element.classList.add(direction === "next" ? "is-next" : "is-prev");
+        });
+      }
     }
 
     function nextMessage() {
       currentMessage = (currentMessage + 1) % messages.length;
-      updateMessage();
+      updateMessage("next");
     }
 
     function prevMessage() {
       currentMessage = (currentMessage - 1 + messages.length) % messages.length;
-      updateMessage();
+      updateMessage("prev");
     }
 
     function goTo(id) {
@@ -307,8 +587,19 @@
     }
 
     function openGift() {
-      launchConfetti();
-      goTo("screen4");
+      const giftBox = document.getElementById("giftBox");
+      if (giftBox.disabled) return;
+
+      giftBox.disabled = true;
+      giftBox.classList.add("opening");
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      window.setTimeout(() => {
+        launchConfetti();
+        goTo("screen4");
+        giftBox.disabled = false;
+        giftBox.classList.remove("opening");
+      }, reducedMotion ? 0 : 600);
     }
 
     function restart() {
@@ -318,6 +609,7 @@
     }
 
     function launchConfetti() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       confetti({
         particleCount: 160,
         spread: 90,
@@ -326,20 +618,21 @@
     }
 
     function createHeart() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       const heart = document.createElement("div");
       heart.className = "heart";
-      heart.innerHTML = Math.random() > 0.5 ? "💖" : "💕";
+      heart.textContent = Math.random() > 0.5 ? "💖" : "💕";
       heart.style.left = Math.random() * 100 + "vw";
       heart.style.fontSize = (16 + Math.random() * 18) + "px";
-      heart.style.animationDuration = (5 + Math.random() * 4) + "s";
+      heart.style.animationDuration = (8 + Math.random() * 4) + "s";
       document.getElementById("hearts").appendChild(heart);
 
       setTimeout(() => {
         heart.remove();
-      }, 8000);
+      }, 12000);
     }
 
-    setInterval(createHeart, 900);
+    setInterval(createHeart, 1800);
     updateMessage();
   </script>
 </body>
