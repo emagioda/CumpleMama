@@ -127,6 +127,12 @@
       transform: scale(0.97);
     }
 
+    .btn:disabled {
+      cursor: default;
+      opacity: 0.58;
+      box-shadow: none;
+    }
+
     .btn:focus {
       outline: none;
     }
@@ -162,11 +168,6 @@
     .message-navigation .btn {
       min-width: 124px;
       margin-top: 12px;
-    }
-
-    .continue-action {
-      margin-top: 14px;
-      padding-top: 5px;
     }
 
     .message-box {
@@ -434,6 +435,21 @@
       }
     }
 
+    @media (max-height: 700px) {
+      .screen {
+        padding-block: 12px;
+      }
+
+      .card {
+        padding-block: 24px;
+      }
+
+      .emoji {
+        font-size: 40px;
+        margin-bottom: 12px;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *,
       *::before,
@@ -457,7 +473,7 @@
   <section class="screen active" id="screen1">
     <div class="card">
       <div class="emoji">🎂💖</div>
-      <h1>Feliz cumple Ma!!</h1>
+      <h1>¡Feliz cumple, Ma!</h1>
       <p>
         Hoy es un día para devolverte un poquito de todo el amor que nos das.<br>
         Tenemos una sorpresa muy especial para vos.
@@ -486,11 +502,8 @@
       </div>
 
       <div class="message-navigation">
-        <button class="btn secondary" onclick="prevMessage()">Anterior</button>
-        <button class="btn" onclick="nextMessage()">Siguiente</button>
-      </div>
-      <div class="continue-action">
-        <button class="btn" onclick="goTo('screen3')">Seguir</button>
+        <button class="btn secondary" id="previousMessageButton" onclick="prevMessage()">Anterior</button>
+        <button class="btn" id="nextMessageButton" onclick="nextMessage()">Siguiente mensaje</button>
       </div>
     </div>
   </section>
@@ -500,14 +513,14 @@
     <div class="card">
       <div class="emoji">🎁</div>
       <h2>Tu regalo está acá</h2>
-      <p>Para descubrirlo, tocá la caja regalo ✨</p>
+      <p>Ahora te toca recibir un mimo a vos.</p>
 
-      <button class="gift-box" id="giftBox" type="button" onclick="openGift()" aria-label="Abrir el regalo">
+      <button class="gift-box" id="giftBox" type="button" onclick="openGift()" aria-label="Tocá la caja de regalo">
         <span class="gift-lid" aria-hidden="true"></span>
         <span class="gift-base" aria-hidden="true"></span>
         <span class="gift-bow" aria-hidden="true"></span>
       </button>
-      <p class="small">Tocala para abrirla</p>
+      <p class="small">Tocá la caja de regalo ✨</p>
     </div>
   </section>
 
@@ -542,7 +555,7 @@
         Gracias por todo lo que hacés por nosotros.<br>
         Esperamos que este regalo te saque una sonrisa enorme.
       </p>
-      <p><strong>¡Feliz cumpleaños Ma!</strong></p>
+      <p><strong>¡Feliz cumple, Ma!</strong></p>
       <button class="btn" onclick="restart()">Ver de nuevo</button>
     </div>
   </section>
@@ -550,15 +563,15 @@
   <script>
     const messages = [
       {
-        text: "Feliz cumple Ma! Gracias por ser tan incondicional y nunca fallarnos.\nTe queremos mucho!!",
+        text: "¡Feliz cumple, Ma! Gracias por ser tan incondicional\ny nunca fallarnos.\n¡Te queremos mucho!",
         author: "Mari"
       },
       {
-        text: "Disfruta mucho de este día y sabes que siempre vamos a estar para vos como vos lo estás para todos nosotros.\nTe quiero mucho!!",
+        text: "Disfrutá mucho de este día y sabés que siempre vamos a estar para vos, como vos lo estás para todos nosotros.\n¡Te quiero mucho!",
         author: "Ema"
       },
       {
-        text: "Ma, feliz cumple!! sigamos disfrutando la vida, que Dios te siga bendiciendo con salud y buenos momentos, Te amo ❤️",
+        text: "¡Ma, feliz cumple! Sigamos disfrutando la vida. Que Dios te siga bendiciendo con salud y buenos momentos. ¡Te amo! ❤️",
         author: "Cande"
       }
     ];
@@ -572,6 +585,11 @@
       document.querySelectorAll(".message-dot").forEach((dot, index) => {
         dot.classList.toggle("active", index === currentMessage);
       });
+      document.getElementById("previousMessageButton").disabled = currentMessage === 0;
+      const nextButton = document.getElementById("nextMessageButton");
+      nextButton.textContent = currentMessage === messages.length - 1
+        ? "Descubrir tu regalo"
+        : "Siguiente mensaje";
 
       if (direction) {
         const messageBox = document.querySelector(".message-box");
@@ -585,12 +603,19 @@
     }
 
     function nextMessage() {
-      currentMessage = (currentMessage + 1) % messages.length;
+      if (currentMessage === messages.length - 1) {
+        goTo("screen3");
+        return;
+      }
+
+      currentMessage += 1;
       updateMessage("next");
     }
 
     function prevMessage() {
-      currentMessage = (currentMessage - 1 + messages.length) % messages.length;
+      if (currentMessage === 0) return;
+
+      currentMessage -= 1;
       updateMessage("prev");
     }
 
